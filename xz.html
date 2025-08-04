@@ -11,16 +11,22 @@
     <p><strong><em>这是二个链接。</em></strong></p>
     <p><a href="szh2.0.apk" download>点击下载安卓<strong> 邵中昊2.0</strong></a>
     <p><a href="szh2.0.exe" download>点击下载Windows<strong> 邵中昊2.0</strong></a>
-    <iframe 
-  width="560" 
-  height="315" 
-  src="https://www.bilibili.com/video/BV1GJ411x7h7/?aid=视频AID&bvid=视频BVID&autoplay=1&muted=1&high_quality=1&danmaku=0" 
-  scrolling="no"
-  border="0" 
-  frameborder="no" 
-  allowfullscreen="flase" 
-  sandbox="allow-top-navigation allow-same-origin allow-forms allow-scripts allow-popups">
-</iframe>
+    <p><video id="myVideo" controls loop poster="bj.jpg">
+  <source src="mv.mp4" type="video/mp4">
+</video>
+
+<button onclick="playVideo()">点击试玩</button>
+
+<script>
+  function playVideo() {
+    const video = document.getElementById("myVideo");
+    video.muted = false; // 取消静音
+    video.play();        // 播放（此时允许声音）
+  }
+</script>
+
+
+
 </p>
 </body>
 </html>
