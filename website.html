@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>邵中昊2.0下载</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #f9f9f9;
+      display: flex;           /* 启用 Flexbox */
+      gap: 20px;               /* 左右两栏之间的间距 */
+      align-items: flex-start; /* 内容顶部对齐 */
+    }
+
+    /* 左侧主容器（你原来的内容） */
+    .container {
+      max-width: 400px;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      /* 不需要 margin-left: 0; 了 */
+    }
+
+    /* 右侧栏（新增的栏） */
+    #rightColumn {
+      flex: 1; /* 让右侧栏自适应剩余宽度 */
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      max-width: 400px; /* 可限制宽度，也可不限制 */
+    }
+
+    select {
+      width: 100%; /* 建议设为 100% 更美观，或者固定宽度比如 200px */
+      padding: 8px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    /* 隐藏的内容区域 */
+    #showA, #showB, #showC {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #676767;
+      border-radius: 4px;
+      display: none; /* 初始不显示 */
+    }
+
+    #showA {
+      background-color: #b1e6ff;
+    }
+
+    #showB {
+      background-color: #b1ffe4;
+    }
+
+    #showC {
+      background-color: #b1ffba;
+    }
+
+    /* 当前时间样式 */
+    .current-time {
+      margin-top: 20px;
+      padding: 10px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      text-align: center;
+      font-size: 18px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 左侧主容器：版本选择和下载内容 -->
+  <div class="container">
+    <h2>🔽版本菜单🔽</h2>
+ <p><video id="myVideo" controls loop poster="bj.jpg">
+  <source src="mv.mp4" type="video/mp4">
+</video>
+
+
+<p><button onclick="playVideo()"><p style="color: red;">千万别点</button></p>
+
+<script>
+  function playVideo() {
+    const video = document.getElementById("myVideo");
+    document.querySelector('video').requestFullscreen();
+	video.muted = false; // 取消静音
+    video.play();        // 播放（此时允许声音）
+  }
+</script>
+
+    <label for="mySelect">请选择一个版本：</label>
+    <select id="mySelect">
+      <option value="">-- 请选择 --</option>
+      <option value="a">正式版</option>
+      <option value="b">测试版</option>
+      <option value="c">恶搞版</option>
+    </select>
+
+    <!-- 下载内容区域 -->
+    <div id="showA">
+      <p><strong>🎉 正式版</strong></p>
+      <p><a href="szh2.0.apk" download>📥 点击下载安卓版 邵中昊2.0</a></p>
+      <p><a href="szh2.0.exe" download>📥 点击下载Windows版 邵中昊2.0</a></p>
+    </div>
+
+    <div id="showB">
+      <p><strong>🧪 测试版</strong></p>
+      <p>暂无</p>
+    </div>
+
+    <div id="showC">
+      <p><strong>🎭 恶搞版</strong></p>
+      <p>恭喜你发现了彩蛋</p>
+    </div>
+  </div>
+
+  <!-- ✅ 右侧新增的栏 -->
+  <div id="rightColumn">
+    <h3>📋 更新公告栏</h3>
+    <ul>
+      <li>邵中昊2.0开发完毕</li>
+      <li>已更新版本<em><strong>邵中昊2.0</strong></em></li>
+      <li>相关链接</li>
+      <li>广告位招租</li>
+      <li>没有更多了</li>
+    </ul>
+    <p>没了!!!</p>
+  </div>
+
+  <!-- 当前时间（可以放在两栏下方，也可以放在任意位置） -->
+<div class="current-time" style="margin-top: 0;margin-right: 0px; width: 100%; max-width: 400px;">
+    <p><strong>当前时间：</strong></p>
+    <p id="timeDisplay">加载中...</p>
+   
+    
+
+    <div class="update-time">
+    <strong>最新检查更新时间</strong>:<p><span id="updateTime"></span></p>
+<p><button onclick="location.reload()">检查更新</button></p>
+</div>
+  </div>
+  <script>
+    const updateTimeElement = document.getElementById('updateTime');
+    const now = new Date();
+    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+    updateTimeElement.textContent = now.toLocaleDateString('zh-CN', options);
+</script>
+
+  <script>
+    // ======================
+    // 下拉菜单显示对应内容
+    // ======================
+    const select = document.getElementById('mySelect');
+    const showA = document.getElementById('showA');
+    const showB = document.getElementById('showB');
+    const showC = document.getElementById('showC');
+
+    select.addEventListener('change', function () {
+      const value = this.value;
+      // 先全部隐藏
+      showA.style.display = 'none';
+      showB.style.display = 'none';
+      showC.style.display = 'none';
+
+      // 根据选择显示对应区域
+      if (value === 'a') {
+        showA.style.display = 'block';
+      } else if (value === 'b') {
+        showB.style.display = 'block';
+      } else if (value === 'c') {
+        showC.style.display = 'block';
+      }
+    });
+
+    // ======================
+    // 动态显示当前时间
+    // ======================
+    function updateTime() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      const timeString = `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+      document.getElementById('timeDisplay').textContent = timeString;
+    }
+
+    updateTime(); // 立即显示
+    setInterval(updateTime, 1000); // 每秒更新
+  </script>
+
+</body>
+</html>
