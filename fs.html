@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>发送信息</title>
+    <title>游啊游旅游</title>
     <style>
         * {
             box-sizing: border-box;
@@ -245,10 +245,11 @@
     </style>
 </head>
 <body>
-<form action="https://getform.io/f/bllqzvkb" method="POST">
+
+<form action="https://formsubmit.co/WQC1145142025@outlook.com" method="POST">
 <div class="header">
-  <h1>发送信息</h1>
-        <p>填充信息</p>
+  <h1>游啊游旅游</h1>
+        <p>填充个人信息</p>
 </div>
     
     <div class="container">
@@ -257,16 +258,19 @@
 <div class="explanation1">
                 <div>
         <label for="name">名字:</label>
-        <input type="text" id="name" name="名字" required>
+        <input name="名字" type="text" id="name" required>
     </div>
 
 </div>
 
 <div class="explanation1">
   <div>
-    <label for="email">邮箱:</label>
-    <input type="email" id="email" name="邮箱" required>
-    </textarea>
+   <!-- 添加 placeholder 提示非必填 -->
+
+<label class="optional-field">邮箱</label>
+:
+<textarea name="邮箱" rows="1" id="message">非必填</textarea>
+
   </div>
 </div>
 <div class="explanation1">
@@ -318,7 +322,7 @@
 <div class="solution">
 <h2>发送信息</h2>
             <div>
-              <textarea name="信息" cols="73" rows="10" id="message" required></textarea>
+              <textarea name="信息" cols="73" rows="10" id="message" required>非必填</textarea>
 <div class="explanation1">
  <div>
       <label for="work-experience">您对此网站的评价:</label>
@@ -333,7 +337,7 @@
 
 <div>
   <input type="text" name="_gotcha" style="display: none !important;">
-
+  
     
   
   <button type="submit" class="problem">发送信息</button>
