@@ -1,0 +1,60 @@
+<form action="https://getform.io/f/bllqzvkb" method="POST">
+
+    <!-- 文本字段 -->
+    <div>
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+    </div>
+
+    <!-- 邮箱字段 -->
+    <div>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+    </div>
+
+    <!-- 留言字段 - 改为 textarea -->
+    <div>
+        <label for="message">Message:</label>
+        <textarea id="message" name="message" rows="4" required></textarea>
+    </div>
+
+    <!-- 工作经验选择 -->
+    <div>
+        <label for="work-experience">Work Experience:</label>
+        <select id="work-experience" name="work-experience" required>
+            <option value="" disabled selected>Please select...</option>
+            <option value="one-year">0-1 years</option>
+            <option value="one-five-years">1-5 years</option>
+        </select>
+    </div>
+
+    <!-- 性别单选按钮 - 分组并添加标签 -->
+    <div>
+        <span>Gender:</span>
+        <div>
+            <input type="radio" id="gender-male" name="gender" value="male" checked>
+            <label for="gender-male">Male</label>
+        </div>
+        <div>
+            <input type="radio" id="gender-female" name="gender" value="female">
+            <label for="gender-female">Female</label>
+        </div>
+        <div>
+            <input type="radio" id="gender-other" name="gender" value="other">
+            <label for="gender-other">Other</label>
+        </div>
+    </div>
+
+    <!-- 订阅复选框 - 修正逻辑 -->
+    <div>
+        <input type="checkbox" id="subscribe" name="subscribe" value="yes" checked>
+        <label for="subscribe">Subscribe to newsletter</label>
+        <!-- 移除了冲突的 hidden input -->
+    </div>
+
+    <!-- 蜜罐防垃圾 -->
+    <input type="text" name="_gotcha" style="display: none !important;">
+
+    <button type="submit">Send</button>
+
+</form>
