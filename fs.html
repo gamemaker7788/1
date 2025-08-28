@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发送信息</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(120deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .problem, .solution {
+	flex: 1;
+	min-width: 300px;
+	background: white;
+	border-radius: 10px;
+	padding: 25px;
+	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+	font-weight: bold;
+	text-align: left;
+	font-size: 16px;
+        }
+		.problem1 {
+	flex: 1;
+	min-width: 300px;
+	background: white;
+	border-radius: 10px;
+	padding: 0px;
+	box-shadow: 0 4px 15px(0, 0, 0, 0.1);
+	border-top-width: 2px;
+	border-right-width: 2px;
+	border-bottom-width: 2px;
+	border-left-width: 2px;
+	border-top-color: #09F;
+	border-right-color: #09F;
+	border-bottom-color: #09F;
+	border-left-color: #09F;
+        }
+        
+        h2 {
+            color: #4a4a4a;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #6a11cb;
+        }
+        
+        .problem-container {
+	width: 100vw;
+	height: 10vh;
+	font-size: 2vh;
+	border-radius: 0;
+	box-shadow: 0 0px 0px rgba(0,0,0,0);
+	border: 2px solid #666;
+	position: fixed;
+	background-color: #000;
+	color: #FFF;
+	left: 0;
+	top: 0;
+        }
+        
+        .fixed-container {
+            width: 100%;
+            height: 10vh;
+            font-size: 2vh;
+            border-radius: 0;
+            box-shadow: 0 0px 0px rgba(0,0,0,0);
+            border: 2px solid #4CAF50;
+            position: fixed;
+            background-color: #4CAF50;
+            color: white;
+            left: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 20px;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Consolas', monospace;
+        }
+        
+        .code-comment {
+            color: #75715e;
+        }
+        
+        .explanation {
+	background: #e7f3ff;
+	border-radius: 5px;
+	border-left-width: 5px;
+	border-left-style: solid;
+	border-left-color: #2196F3;
+	margin-top: 15px;
+	margin-right: 0;
+	margin-bottom: 15px;
+	padding: 15px;
+        }
+		.explanation1 {
+	background: #e7f3ff;
+	border-radius: 5px;
+	border-left-width: 5px;
+	border-left-style: solid;
+	border-left-color: #2196F3;
+	margin-top: 15px;
+	margin-right: 0;
+	margin-bottom: 15px;
+	padding-top: 15px;
+	padding-right: 15px;
+	padding-bottom: 15px;
+	padding-left: 0px;
+        }
+        
+        .example {
+            background: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        
+        .example-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #4a4a4a;
+        }
+        
+        .button {
+            display: inline-block;
+            background: #6a11cb;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .button:hover {
+            background: #2575fc;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    .explanation1 {	background: #e7f3ff;
+	border-radius: 5px;
+	border-left-width: 5px;
+	border-left-style: solid;
+	border-left-color: #2196F3;
+	margin-top: 15px;
+	margin-right: 0;
+	margin-bottom: 15px;
+	padding-top: 15px;
+	padding-right: 15px;
+	padding-bottom: 15px;
+	padding-left: 20px;
+}
+ .explanation11 {
+	background: #e7f3ff;
+	border-radius: 5px;
+	border-left-width: 5px;
+	border-left-style: solid;
+	border-left-color: #2196F3;
+	padding-top: 15px;
+	padding-right: 15px;
+	padding-bottom: 15px;
+	padding-left: 20px;
+	margin: 0px;
+}
+    .problem .explanation1 div div #gender-other {
+	text-align: left;
+}
+    .problem .explanation1 div span {
+	text-align: left;
+}
+    .problem .explanation1 div span {
+	text-align: left;
+}
+    .explanation1 div label {
+	font-weight: bold;
+}
+    </style>
+</head>
+<body>
+<form action="https://getform.io/f/bllqzvkb" method="POST">
+<div class="header">
+  <h1>发送信息</h1>
+        <p>填充信息</p>
+</div>
+    
+    <div class="container">
+<div class="problem">
+  <h2>提交信息</h2>
+<div class="explanation1">
+                <div>
+        <label for="name">名字:</label>
+        <input type="text" id="name" name="名字" required>
+    </div>
+
+</div>
+
+<div class="explanation1">
+  <div>
+    <label for="email">邮箱:</label>
+    <input type="email" id="email" name="邮箱" required>
+    </textarea>
+  </div>
+</div>
+<div class="explanation1">
+        <label>选择地区</label>
+      <select name="地区" size="1" id="work-experience" required>
+                    <option value="+86" data-flag="cn" data-lang="中文" data-native="中国">+86 中国 (中文)</option>
+                    <option value="+44" data-flag="gb" data-lang="English" data-native="United Kingdom">+44 英国 (English)</option>
+                    <option value="+81" data-flag="jp" data-lang="日本語" data-native="日本">+81 日本 (日本語)</option>
+                    <option value="+82" data-flag="kr" data-lang="한국어" data-native="대한민국">+82 韩国 (한국어)</option>
+                    <option value="+91" data-flag="in" data-lang="हिन्दी" data-native="भारत">+91 印度 (हिन्दी)</option>
+                    <option value="+49" data-flag="de" data-lang="Deutsch" data-native="Deutschland">+49 德国 (Deutsch)</option>
+                    <option value="+33" data-flag="fr" data-lang="Français" data-native="France">+33 法国 (Français)</option>
+                    <option value="+61" data-flag="au" data-lang="English" data-native="Australia">+61 澳大利亚 (English)</option>
+                    <option value="+7" data-flag="ru" data-lang="Русский" data-native="Россия">+7 俄罗斯 (Русский)</option>
+                    <option value="+39" data-flag="it" data-lang="Italiano" data-native="Italia">+39 意大利 (Italiano)</option>
+                    <option value="+34" data-flag="es" data-lang="Español" data-native="España">+34 西班牙 (Español)</option>
+                    <option value="+55" data-flag="br" data-lang="Português" data-native="Brasil">+55 巴西 (Português)</option>
+                </select>
+                <label>电话</label>
+                 <input name="电话" type="text" id="name1" size="11" maxlength="11" required>
+                
+</div>
+
+
+<div class="explanation11">
+  <div>
+        <span>性别:</span>
+        <div>
+            <input type="radio" id="gender-male" name="性别" value="男" checked>
+            <label for="gender-male">男</label>
+        </div>
+        <div>
+            <input type="radio" id="gender-female" name="性别" value="女">
+            <label for="gender-female">女</label>
+      </div>
+        <div>
+          <input type="radio" id="gender-other" name="性别" value="其他">
+            <label for="gender-other">其他</label>
+        </div>
+    	
+     <div>
+        <input name="是否残疾" type="checkbox" id="subscribe" value="是" checked=		"checked">
+        <label for="subscribe">残疾人士</label>
+      </div>
+	</div>
+</div>
+</div>
+
+<div class="solution">
+<h2>发送信息</h2>
+            <div>
+              <textarea name="信息" cols="73" rows="10" id="message" required></textarea>
+<div class="explanation1">
+ <div>
+      <label for="work-experience">您对此网站的评价:</label>
+        <select name="网站评价" size="1" class="example-title" id="work-experience" required>
+          <option value="没有选择" selected>可选...</option>
+            <option value="好">好</option>
+            <option value="不好">不好</option>
+        </select>
+  </div>
+</div>
+           
+
+<div>
+  <input type="text" name="_gotcha" style="display: none !important;">
+
+    
+  
+  <button type="submit" class="problem">发送信息</button>
+ 
+</form>
+</div>
