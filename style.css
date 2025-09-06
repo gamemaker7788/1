@@ -1,0 +1,14 @@
+@charset "utf-8";
+/* CSS Document */
+
+/* 保持之前的样式，移除认证相关样式 */
+.comment-form input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+/* 其他样式保持不变 */
