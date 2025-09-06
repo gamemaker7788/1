@@ -1,12 +1,7 @@
-// JavaScript Document
-const firebaseConfig = {
-    apiKey: "你的apiKey",
-    authDomain: "你的项目.firebaseapp.com",
-    projectId: "你的项目ID",
-    storageBucket: "你的项目.appspot.com",
-    messagingSenderId: "你的发送者ID",
-    appId: "你的应用ID"
-};
+import postgres from 'postgres'
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const connectionString = process.env.DATABASE_URL
+const sql = postgres(connectionString)
+
+export default sql
+
