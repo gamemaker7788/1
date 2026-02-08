@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="bright">
+<head>
+<meta charset="utf-8">
+<title>223班视频播放</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<!-- ① 主题初始化（先于CSS） -->
+<script>
+(function(){
+  const key = 'theme-223-video';
+  const th = localStorage.getItem(key);
+  if (th) document.documentElement.dataset.theme = th;
+})();
+</script>
+
+<style>
+/* ========= 灰蓝双色主题 ========= */
+:root[data-theme="bright"]{
+  --bg        : #ffffff;
+  --panel     : #f6f8fa;
+  --text      : #333333;
+  --gray1     : #cccccc;
+  --gray2     : #bbbbbb;
+  --bottom-blue:#38bdf8;
+  --blue-glow : #38bdf822;
+}
+:root[data-theme="dark"]{
+  --bg        : #1e1e1e;
+  --panel     : #252525;
+  --text      : #e5e5e5;
+  --gray1     : #555555;
+  --gray2     : #333333;
+  --bottom-blue:#38bdf8;
+  --blue-glow : #38bdf833;
+}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+body{
+  height:100vh;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  overflow:hidden;
+}
+
+/* ===== 顶部固定栏 ===== */
+.toolbar{
+  position:fixed;
+  top:0;left:0;right:0;
+  height:48px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;
+  background:var(--panel);
+  border-bottom:1px solid var(--gray1);
+  z-index:10;
+}
+.toolbar h5{margin:0;font-size:14px;font-weight:600;color:var(--bottom-blue)}
+.switch{
+  cursor:pointer;font-size:14px;background:var(--gray1);color:var(--text);
+  border:none;border-radius:6px;padding:6px 12px;
+}
+
+/* ===== 左侧选集（贴顶） ===== */
+#side{
+  position:fixed;
+  top:48px;left:0;
+  width:200px;
+  height:calc(100vh - 48px);
+  background:var(--panel);
+  padding:12px 10px;
+  overflow-y:auto;
+  border-right:1px solid var(--gray1);
+  scrollbar-width:thin;
+  scrollbar-color:var(--bottom-blue) transparent;
+}
+#side::-webkit-scrollbar{width:8px}
+#side::-webkit-scrollbar-track{background:transparent;border-radius:4px}
+#side::-webkit-scrollbar-thumb{background:var(--bottom-blue);border-radius:4px}
+
+#side h3{
+  margin-bottom:10px;
+  font-size:15px;
+  font-weight:600;
+  color:var(--bottom-blue);
+}
+.ep{
+  display:block;width:100%;
+  padding:8px 10px;margin-bottom:6px;
+  border:2px solid var(--gray1);border-radius:6px;
+  background:transparent;color:var(--text);
+  cursor:pointer;text-align:left;font-size:13px;
+  position:relative;top:0;box-shadow:0 3px 0 var(--gray2);
+  transition:all .12s ease;
+}
+.ep:hover{
+  border-color:var(--bottom-blue);
+  transform:translateY(-2px);box-shadow:0 5px 0 var(--gray2);
+}
+.ep.on{
+  background:var(--bottom-blue);color:#000;
+  border-color:var(--bottom-blue);
+  box-shadow:0 3px 0 var(--bottom-blue);
+}
+.ep.on:hover{box-shadow:0 5px 0 var(--bottom-blue)}
+.ep:active{transform:translateY(2px);box-shadow:0 1px 0 var(--gray2);}
+.ep.on:active{box-shadow:0 1px 0 var(--bottom-blue);}
+
+/* ===== 右侧播放器 ===== */
+#main{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding-top:48px;padding-left:200px;
+  height:100vh;
+}
+#screen{
+  width:90%;max-width:900px;
+  background:#000;border-radius:12px;position:relative;overflow:hidden;
+  box-shadow:0 8px 30px rgba(0,0,0,.6);
+  display:flex;
+  flex-direction:column;
+}
+#videoWrapper{
+  position:relative;
+  flex:1;
+  background:#000;
+  min-height:0;
+}
+#screen video{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  transition:filter .2s;
+  display:block;
+}
+
+/* ===== 底部控制栏（自适应，不遮挡视频） ===== */
+#bot{
+  position:relative;
+  background:var(--panel);
+  border-top:1px solid var(--gray1);
+  padding:10px 16px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  flex-shrink:0;
+}
+#ctrl{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:13px;
+  color:var(--text);
+  flex-wrap:wrap;
+}
+
+/* ===== 3D 按钮 ===== */
+.d-btn{
+  position:relative;padding:6px 10px;font-size:14px;font-weight:600;
+  border:2px solid var(--gray1);border-radius:6px;
+  background:transparent;color:var(--text);cursor:pointer;
+  top:0;box-shadow:0 3px 0 var(--gray2);transition:all .12s ease;
+  white-space:nowrap;
+}
+.d-btn:hover{transform:translateY(-2px);box-shadow:0 5px 0 var(--gray2);}
+.d-btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--gray2);}
+
+/* 下载按钮特殊样式 */
+.d-btn.download{
+  background:var(--bottom-blue);
+  color:#000;
+  border-color:var(--bottom-blue);
+  box-shadow:0 3px 0 #0ea5e9;
+  margin-left:auto;
+}
+.d-btn.download:hover{
+  box-shadow:0 5px 0 #0ea5e9;
+}
+.d-btn.download:active{
+  box-shadow:0 1px 0 #0ea5e9;
+}
+
+/* ===== 手绘图标 ===== */
+.icon{position:relative;display:inline-block;width:18px;height:18px;}
+.icon-play::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:0;height:0;border-left:12px solid var(--text);border-top:7px solid transparent;border-bottom:7px solid transparent;}
+.icon-pause::before,.icon-pause::after{content:'';position:absolute;top:50%;transform:translateY(-50%);width:3px;height:12px;background:var(--text);}
+.icon-pause::before{left:4px;}
+.icon-pause::after{right:4px;}
+.icon-rev::before,.icon-rev::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);}
+.icon-rev::before{width:0;height:0;border-right:9px solid var(--text);border-top:5px solid transparent;border-bottom:5px solid transparent;}
+.icon-rev::after{width:5px;height:2px;background:var(--text);margin-left:3px;}
+.icon-fwd::before,.icon-fwd::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);}
+.icon-fwd::before{width:0;height:0;border-left:9px solid var(--text);border-top:5px solid transparent;border-bottom:5px solid transparent;}
+.icon-fwd::after{width:5px;height:2px;background:var(--text);margin-left:-3px;}
+.icon-download::before{
+  content:'';
+  position:absolute;
+  top:45%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  width:8px;
+  height:8px;
+  border-left:2px solid var(--text);
+  border-bottom:2px solid var(--text);
+  transform:translate(-50%,-50%) rotate(-45deg);
+}
+.icon-download::after{
+  content:'';
+  position:absolute;
+  top:30%;
+  left:50%;
+  transform:translateX(-50%);
+  width:2px;
+  height:8px;
+  background:var(--text);
+}
+
+/* ===== 进度条 ===== */
+#progress{
+  height:5px;
+  background:var(--gray1);
+  border-radius:3px;
+  cursor:pointer;
+  position:relative;
+  width:100%;
+  flex-shrink:0;
+}
+#progressBar{height:100%;background:var(--bottom-blue);border-radius:3px;width:0;transition:width .1s;}
+#time{
+  font-size:12px;
+  white-space:nowrap;
+  min-width:90px;
+  text-align:center;
+}
+
+/* ===== 旋钮 ===== */
+input[type=range]{
+  -webkit-appearance:none;
+  height:4px;
+  background:var(--gray1);
+  border-radius:2px;
+  outline:none;
+  width:60px;
+  flex-shrink:0;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:14px;
+  height:14px;
+  background:var(--bottom-blue);
+  border-radius:50%;
+  cursor:pointer;
+}
+input[type=range]::-moz-range-thumb{
+  width:14px;
+  height:14px;
+  background:var(--bottom-blue);
+  border-radius:50%;
+  cursor:pointer;
+  border:none;
+}
+
+/* ===== 倍速下拉 ===== */
+#speedSel{
+  padding:4px 8px;
+  font-size:13px;
+  border:2px solid var(--gray1);
+  border-radius:6px;
+  background:var(--panel);
+  color:var(--text);
+  cursor:pointer;
+  outline:none;
+  flex-shrink:0;
+}
+#speedSel:focus{border-color:var(--bottom-blue);box-shadow:0 0 0 2px var(--blue-glow);}
+
+/* ===== 隐私条款浮层 ===== */
+.privacy-mask{
+  position:fixed;
+  inset:0;
+  background:#000000;
+  z-index:19;
+  display:block;
+  opacity:1;
+  transition:opacity .3s ease;
+}
+.privacy-mask.hide{
+  opacity:0;
+  pointer-events:none;
+}
+.privacy-panel{
+  position:fixed;
+  inset:0;
+  margin:auto;
+  max-width:480px;
+  height:fit-content;
+  background:var(--bg);
+  border: 2px solid var(--gray1);
+  border-radius: 14px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+  z-index:20;
+  transform:translateY(0);
+  transition:transform .3s ease;
+}
+.privacy-panel.hide{
+  transform:translateY(-10086px);
+  pointer-events:none;
+}
+
+/* 卡片样式 */
+.card {
+  width: calc(100% - 48px);
+  max-width: 680px;
+  margin: 0 auto 20px;
+  padding: 18px 22px;
+  border: 2px solid var(--gray1);
+  border-radius: 14px;
+  background: transparent;
+}
+.card h3 {
+  margin: 0 0 12px;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--bottom-blue);
+}
+.mini-scroll{
+  max-height:200px;
+  overflow:auto;
+  padding:8px 0;
+}
+
+/* 按钮组 */
+.btn-group{
+  display:flex;
+  gap:8px;
+  padding:16px 24px;
+  justify-content:center;
+}
+
+/* 隐私条款特定样式 */
+.privacy-panel .card {
+  width: 100%;
+  margin: 0;
+  padding: 16px;
+  background: var(--panel);
+}
+.privacy-panel a {
+  color: var(--bottom-blue);
+  text-decoration: none;
+}
+.privacy-panel a:hover {
+  text-decoration: underline;
+}
+
+/* 隐私面板内部样式 */
+.privacy-panel h3 {
+  text-align: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--gray1);
+}
+
+.privacy-panel .mini-scroll {
+  background: var(--bg);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  border: 1px solid var(--gray1);
+}
+
+.privacy-panel details {
+  margin-top: 16px;
+}
+
+.privacy-panel summary {
+  cursor: pointer;
+  padding: 8px 12px;
+  background: var(--panel);
+  border-radius: 6px;
+  border: 1px solid var(--gray1);
+}
+
+.privacy-panel details[open] summary {
+  margin-bottom: 12px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.privacy-panel details .card {
+  margin-top: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  border-top: none;
+}
+
+/* ===== 视频加载动画（UIverse - red-cow-21 风格） ===== */
+.loader-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: none;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.loader-container.active {
+  display: block;
+}
+
+/* From Uiverse.io by satyamchaudharydev - red-cow-21 */
+.spinner {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  margin-left: -75px;
+}
+
+.spinner span {
+  position: absolute;
+  top: 50%;
+  left: var(--left);
+  width: 35px;
+  height: 7px;
+  background: var(--bottom-blue);
+  animation: dominos 1s ease infinite;
+  box-shadow: 2px 2px 3px 0px black;
+}
+
+.spinner span:nth-child(1) {
+  --left: 80px;
+  animation-delay: 0.125s;
+}
+
+.spinner span:nth-child(2) {
+  --left: 70px;
+  animation-delay: 0.3s;
+}
+
+.spinner span:nth-child(3) {
+  left: 60px;
+  animation-delay: 0.425s;
+}
+
+.spinner span:nth-child(4) {
+  animation-delay: 0.54s;
+  left: 50px;
+}
+
+.spinner span:nth-child(5) {
+  animation-delay: 0.665s;
+  left: 40px;
+}
+
+.spinner span:nth-child(6) {
+  animation-delay: 0.79s;
+  left: 30px;
+}
+
+.spinner span:nth-child(7) {
+  animation-delay: 0.915s;
+  left: 20px;
+}
+
+.spinner span:nth-child(8) {
+  left: 10px;
+}
+
+@keyframes dominos {
+  50% {
+    opacity: 0.7;
+  }
+  75% {
+    -webkit-transform: rotate(90deg);
+    transform: rotate(90deg);
+  }
+  80% {
+    opacity: 1;
+  }
+}
+
+/* 加载文字 */
+.loading-text {
+  position: absolute;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--bottom-blue);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  #side {
+    width: 160px;
+  }
+  #main {
+    padding-left: 160px;
+  }
+  #ctrl {
+    gap: 6px;
+  }
+  input[type=range] {
+    width: 50px;
+  }
+  #time {
+    min-width: 80px;
+    font-size: 11px;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ① 隐私浮层（最前，层级最高） -->
+<div id="privacyMask" class="privacy-mask"></div>
+<section id="privacyPanel" class="card privacy-panel">
+  <h3>223班视频播放器隐私条款</h3>
+  <div class="mini-scroll">
+    <p>1. 本播放器仅用于班级内部视频播放，不收集任何个人信息。</p>
+    <p>2. 播放历史仅保存在您的设备本地，不会上传到任何服务器。</p>
+    <p>3. 视频文件存储在本地服务器，不会与第三方共享。</p>
+    <p>4. 同意即表示您了解并接受以上条款。</p>
+    <details>
+      <summary class="d-btn">详细条款说明</summary>
+      <div class="card" style="margin-top:12px;">
+        <p>一、转载行为规范<br>
+          未经视频著作权人书面授权，任何单位或个人不得擅自转载、引用、二次传播本平台或他人原创视频内容；经授权转载的，必须完整保留视频原始信息（含作者署名、来源标识、版权声明），不得删减或修改来源标注。<br>
+          禁止以商业盈利为目的转载未授权视频，包括但不限于嵌入广告、付费传播、捆绑销售等行为；非商业转载需严格遵守原作者设定的使用范围，不得超出授权期限或用途使用。<br>
+          转载内容若涉及他人隐私（如人脸、车牌、私人场所画面等），必须事先获得隐私相关方同意，且转载时需对敏感隐私信息采取打码、模糊等保护措施。<br>
+          二、恶意搬运禁止条款<br>
+          严禁任何形式的恶意搬运行为，包括但不限于：去除原视频版权标识、作者署名后重新发布；下载他人视频后更换账号、水印直接上传；拆分多段视频拼接为&quot;新内容&quot;传播；跨平台批量盗用视频内容获利等。<br>
+          禁止通过技术手段破解视频保护措施（如防盗链、水印防伪）进行搬运，不得规避平台版权监测机制重复上传盗用内容[__LINK_ICON]。<br>
+          恶意搬运行为一经核实，视为侵犯著作权及平台管理规定，将依法追究删除、赔偿等责任，情节严重的移交司法机关处理。<br>
+          三、丑化行为限制条款<br>
+          不得对原视频中的人物、场景、标识等进行丑化处理，包括但不限于：添加侮辱性特效、恶意滤镜（如丑化人脸、扭曲肢体）；配加侮辱性字幕、音效或旁白；截取人物不雅瞬间并放大传播；以恶搞名义篡改视频内容贬损他人形象。<br>
+          禁止将视频内容与淫秽、暴力、血腥等不良信息结合，或通过拼接、渲染等方式制造负面联想，损害视频当事人的名誉权、肖像权。<br>
+          不得以&quot;娱乐&quot;&quot;吐槽&quot;为借口，实施侮辱性修改，若对视频进行二次创作需确保不侵犯他人人格权益，且获得原作者及当事人授权。<br>
+          四、扭曲事实禁止条款<br>
+          严禁通过剪辑、拼接、篡改等手段扭曲视频原始事实，包括但不限于：断章取义删除关键语境，导致原意误解；移花接木颠倒事件时间线、虚构因果关系；使用AI换脸、声音克隆等技术伪造视频内容；恶意配文、消音重配等曲解原始信息的行为。<br>
+          不得传播经篡改后可能误导公众、扰乱公共秩序的视频，包括但不限于虚假事件记录、伪造政策解读、编造灾难信息等内容<br>
+          明知视频内容已被扭曲事实仍进行传播、转发的，视为共同侵权，需承担相应法律责任。<br>
+          五、法律责任与维权条款<br>
+          违反上述条款者，需立即停止侵权行为（包括删除侵权视频、停止传播），并承担由此造成的经济损失（含版权费、维权成本）及精神损害赔偿。<br>
+          情节严重的侵权行为（如大规模恶意搬运、扭曲事实引发网络暴力或社会混乱），将依据《民法典》《网络安全法》《治安管理处罚法》等规定，追究行政责任；构成犯罪的（如诽谤罪、编造虚假信息罪），依法移交司法机关追究刑事责任<br>
+        著作权人或利害关系人可凭合法证明材料向平台或监管部门投诉，平台将在核实后24小时内采取删除、屏蔽、断开链接等措施，并配合维权调查。</p>
+      </div>
+    </details>
+  </div>
+  <div class="btn-group" id="privacyBtns">
+    <button class="d-btn" id="agreeBtn" onclick="agreePrivacy()">同意并开始使用</button>
+    <button class="d-btn" id="rejectBtn" onclick="rejectPrivacy()">不同意</button>
+    <button class="d-btn" id="reselectBtn" style="display:none;" onclick="reselectPrivacy()">重新选择</button>
+  </div>
+</section>
+
+<!-- ② 顶部栏 -->
+<div class="toolbar">
+  <h5>223班视频播放</h5>
+  <div class="btn-group">
+  <button class="switch" onClick="toggleTheme()">切换主题</button>
+  <button class="d-btn active">视频</button>
+  <a class="d-btn" href="w3/index.html">返回</a>
+</div>
+
+</div>
+
+<!-- ③ 左侧选集 -->
+<aside id="side">
+  <h3>选集列表</h3>
+  <div id="epList"></div>
+</aside>
+
+<!-- ④ 右侧播放器 -->
+<div id="main">
+  <div id="screen">
+    <!-- 视频加载动画 -->
+    <div id="videoWrapper">
+      <div id="loader" class="loader-container">
+        <div class="spinner">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <div class="loading-text">视频加载中...</div>
+      </div>
+      <video id="v" preload="metadata"></video>
+    </div>
+    
+    <!-- 底部控制栏（自适应，在视频外部） -->
+    <div id="bot">
+      <div id="progress"><div id="progressBar"></div></div>
+      <div id="ctrl">
+        <button class="d-btn" id="playBtn" title="播放"><span class="icon icon-play"></span></button>
+        <button class="d-btn" id="pauseBtn" style="display:none" title="暂停"><span class="icon icon-pause"></span></button>
+        <button class="d-btn" id="revBtn" title="后退10秒"><span class="icon icon-rev"></span></button>
+        <button class="d-btn" id="fwdBtn" title="前进10秒"><span class="icon icon-fwd"></span></button>
+        <span id="time">00:00 / 00:00</span>
+        <label>倍速</label>
+        <select id="speedSel">
+          <option value="0.5">0.5x</option>
+          <option value="1" selected>1x</option>
+          <option value="1.25">1.25x</option>
+          <option value="1.5">1.5x</option>
+          <option value="2">2x</option>
+        </select>
+        <label>音量</label>
+        <input type="range" id="volIn" max="100" value="70">
+        <label>亮度</label>
+        <input type="range" id="brightIn" max="200" value="100">
+        <a class="d-btn download" id="downloadBtn" title="下载视频" download>
+          <span class="icon icon-download" style="margin-right:4px;"></span>下载
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ========= 隐私条款控制 ========= */
+(function(){
+  const key = 'privacy-agreed-223-video';
+  const mask  = document.getElementById('privacyMask');
+  const panel = document.getElementById('privacyPanel');
+  const agreeBtn    = document.getElementById('agreeBtn');
+  const rejectBtn   = document.getElementById('rejectBtn');
+  const reselectBtn = document.getElementById('reselectBtn');
+
+  // 检查是否已同意隐私条款
+  if (localStorage.getItem(key)) {
+    agreeBtn.textContent = '已同意条款';
+    agreeBtn.disabled = true;
+    if (rejectBtn) rejectBtn.remove();
+    reselectBtn.style.display = 'inline-block';
+    panel.classList.add('hide');
+    mask.classList.add('hide');
+    return;
+  }
+
+  window.agreePrivacy = function () {
+    localStorage.setItem(key, '1');
+    agreeBtn.textContent = '已同意条款';
+    agreeBtn.disabled = true;
+    if (rejectBtn) rejectBtn.remove();
+    reselectBtn.style.display = 'inline-block';
+    setTimeout(() => {
+      panel.classList.add('hide');
+      mask.classList.add('hide');
+    }, 500);
+  };
+
+  window.rejectPrivacy = function () {
+    localStorage.removeItem(key);
+    location.href = 'wud.html';
+  };
+
+  window.reselectPrivacy = function () {
+    localStorage.removeItem(key);
+    location.reload();
+  };
+})();
+
+/* ========= 主题切换（带记忆） ========= */
+function toggleTheme(){
+  const root = document.documentElement;
+  const key  = 'theme-223-video';
+  const cur  = root.dataset.theme;
+  const next = cur === 'bright' ? 'dark' : 'bright';
+  root.dataset.theme = next;
+  localStorage.setItem(key, next);
+}
+
+/* ========= 播放器逻辑 ========= */
+const EPISODES = [
+  {name:"语文项目化作业",src:"https://fezxhcmiefdbvqmhczut.supabase.co/storage/v1/object/public/1/0001-5535.mp4"}
+];
+
+const v = document.getElementById('v');
+const playBtn = document.getElementById('playBtn');
+const pauseBtn = document.getElementById('pauseBtn');
+const revBtn = document.getElementById('revBtn');
+const fwdBtn = document.getElementById('fwdBtn');
+const time = document.getElementById('time');
+const speedSel = document.getElementById('speedSel');
+const volIn = document.getElementById('volIn');
+const brightIn = document.getElementById('brightIn');
+const progress = document.getElementById('progress');
+const progressBar = document.getElementById('progressBar');
+const epList = document.getElementById('epList');
+const loader = document.getElementById('loader');
+const downloadBtn = document.getElementById('downloadBtn');
+
+let current = 0;
+
+function renderList(){
+  epList.innerHTML = '';
+  EPISODES.forEach((ep,idx)=>{
+    const btn = document.createElement('button');
+    btn.className = 'ep';
+    btn.textContent = ep.name;
+    btn.onclick = ()=>loadEp(idx);
+    if(idx === current) btn.classList.add('on');
+    epList.appendChild(btn);
+  });
+}
+renderList();
+
+function loadEp(idx){
+  current = idx;
+  v.pause();
+  v.currentTime = 0;
+  v.src = EPISODES[idx].src;
+  v.load();
+  
+  // 更新下载按钮链接
+  downloadBtn.href = EPISODES[idx].src;
+  downloadBtn.download = EPISODES[idx].name + '.mp4';
+  
+  renderList();
+  v.play();
+}
+
+window.addEventListener('DOMContentLoaded',()=>loadEp(0));
+
+playBtn.onclick = ()=>v.play();
+pauseBtn.onclick = ()=>v.pause();
+v.onplay = ()=>{ playBtn.style.display='none'; pauseBtn.style.display='inline-block'; };
+v.onpause = ()=>{ playBtn.style.display='inline-block'; pauseBtn.style.display='none'; };
+
+revBtn.onclick = ()=>{ v.currentTime = Math.max(0,v.currentTime-10); };
+fwdBtn.onclick = ()=>{ v.currentTime = Math.min(v.duration,v.currentTime+10); };
+
+speedSel.onchange = ()=>{ v.playbackRate = speedSel.value; };
+
+volIn.oninput = ()=>{ v.volume = volIn.value/100; };
+
+brightIn.oninput = ()=>{ v.style.filter = `brightness(${brightIn.value/100})`; };
+
+let isDragging = false;
+progress.addEventListener('mousedown',()=>isDragging=true);
+document.addEventListener('mouseup',()=>isDragging=false);
+progress.addEventListener('click',seek);
+progress.addEventListener('mousemove',e=>{if(isDragging)seek(e);});
+function seek(e){
+  const ratio = e.offsetX/progress.offsetWidth;
+  v.currentTime = ratio*v.duration;
+}
+
+v.addEventListener('loadedmetadata',()=>time.textContent=`00:00 / ${fmt(v.duration)}`);
+v.addEventListener('timeupdate',()=>{
+  time.textContent = `${fmt(v.currentTime)} / ${fmt(v.duration)}`;
+  progressBar.style.width = v.duration ? (v.currentTime/v.duration*100)+'%' : '0';
+});
+
+function fmt(t){
+  const m = Math.floor(t/60).toString().padStart(2,'0');
+  const s = Math.floor(t%60).toString().padStart(2,'0');
+  return `${m}:${s}`;
+}
+
+/* ========= 加载动画控制 ========= */
+// 显示加载动画
+function showLoader() {
+  loader.classList.add('active');
+}
+
+// 隐藏加载动画
+function hideLoader() {
+  loader.classList.remove('active');
+}
+
+// 监听视频等待事件（缓冲）
+v.addEventListener('waiting', () => {
+  showLoader();
+});
+
+// 监听视频可播放事件
+v.addEventListener('canplay', () => {
+  hideLoader();
+});
+
+// 监听视频播放事件（隐藏加载动画）
+v.addEventListener('playing', () => {
+  hideLoader();
+});
+
+// 监听视频加载开始
+v.addEventListener('loadstart', () => {
+  showLoader();
+});
+
+// 监听视频元数据加载完成
+v.addEventListener('loadedmetadata', () => {
+  // 元数据加载完成，但视频可能还在缓冲
+  if (v.paused) {
+    showLoader();
+  }
+});
+
+// 监听视频错误
+v.addEventListener('error', () => {
+  hideLoader();
+  console.error('视频加载失败');
+});
+
+// 监听视频结束，重置按钮状态
+v.addEventListener('ended', () => {
+  playBtn.style.display = 'inline-block';
+  pauseBtn.style.display = 'none';
+});
+</script>
+</body>
+</html>
